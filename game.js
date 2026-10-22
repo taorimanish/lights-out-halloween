@@ -366,6 +366,9 @@
     stop() {
       this.running = false;
       cancelAnimationFrame(this._raf);
+      // Clear the board so a quit leaves no lit bulbs behind.
+      this.active.clear();
+      for (const c of this.cells) this._clearCell(c);
     }
   }
 

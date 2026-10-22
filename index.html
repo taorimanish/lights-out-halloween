@@ -70,6 +70,9 @@
 
     <!-- ============ GAME ============ -->
     <section id="screen-game" class="screen">
+      <div class="game-topbar">
+        <button id="btn-quit" class="btn btn-quit" type="button">← Menu</button>
+      </div>
       <div class="hud">
         <div class="hud-item"><span class="hud-label">Score</span><span id="hud-score" class="hud-val">0</span></div>
         <div class="hud-item"><span class="hud-label">Time</span><span id="hud-time" class="hud-val">45</span></div>
@@ -79,6 +82,16 @@
       <div class="grid-wrap">
         <div id="grid" class="grid"></div>
         <div id="countdown" class="countdown"></div>
+        <div id="quit-confirm" class="quit-confirm">
+          <div class="quit-box">
+            <p class="quit-title">Quit this round?</p>
+            <p class="quit-sub">Your current progress won't be saved.</p>
+            <div class="btn-row">
+              <button id="btn-quit-yes" class="btn btn-primary" type="button">Quit to Menu</button>
+              <button id="btn-quit-no" class="btn btn-ghost" type="button">Keep Playing</button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 

@@ -81,18 +81,23 @@
   let lastResult = null;
 
   // ---- Countdown then start ----------------------------------
+  let countdownTimer = null;
+  let goTimer = null;
+
   function startGameFlow() {
+    hideQuitConfirm();
     show("game");
     const overlay = document.getElementById("countdown");
     overlay.classList.add("show");
     let n = 3;
     overlay.textContent = n;
-    const iv = setInterval(() => {
+    countdownTimer = setInterval(() => {
       n--;
       if (n <= 0) {
-        clearInterval(iv);
+        clearInterval(countdownTimer);
+        countdownTimer = null;
         overlay.textContent = "GO!";
-        setTimeout(() => {
+        goTimer = setTimeout(() => {
           overlay.classList.remove("show");
           game.start();
         }, 450);
@@ -100,6 +105,26 @@
         overlay.textContent = n;
       }
     }, 700);
+  }
+
+  // Fully stop a round/countdown without saving (used by "Menu").
+  function abortGame() {
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    if (goTimer) { clearTimeout(goTimer); goTimer = null; }
+    game.stop();
+    const overlay = document.getElementById("countdown");
+    if (overlay) overlay.classList.remove("show");
+    hideQuitConfirm();
+  }
+
+  // ---- Quit / back-to-menu confirm ---------------------------
+  function showQuitConfirm() {
+    const el = document.getElementById("quit-confirm");
+    if (el) el.classList.add("show");
+  }
+  function hideQuitConfirm() {
+    const el = document.getElementById("quit-confirm");
+    if (el) el.classList.remove("show");
   }
 
   // ---- Game end -> compute, submit, show results --------------
@@ -213,6 +238,14 @@
     player = { name, email };
     savePlayer(player);
     show("instructions");
+  });
+
+  // In-game "Menu" button -> confirm, then abort to welcome.
+  document.getElementById("btn-quit").addEventListener("click", showQuitConfirm);
+  document.getElementById("btn-quit-no").addEventListener("click", hideQuitConfirm);
+  document.getElementById("btn-quit-yes").addEventListener("click", () => {
+    abortGame();
+    show("welcome");
   });
 
   document.getElementById("btn-how").addEventListener("click", () => show("instructions"));
