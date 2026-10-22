@@ -39,6 +39,23 @@
 
   let player = loadPlayer() || { name: "", email: "" };
 
+  // ---- Local plays counter (per email, this browser) ----------
+  // Counts completed games so every player — even non-qualifying ones —
+  // sees how many times they've played. Qualifying players also get an
+  // authoritative count from the shared DB on the leaderboard.
+  const PLAYS_KEY = "lo_plays";
+  function loadPlays() {
+    try { return JSON.parse(localStorage.getItem(PLAYS_KEY) || "{}"); }
+    catch { return {}; }
+  }
+  function bumpPlays(email) {
+    const key = (email || "").trim().toLowerCase();
+    const all = loadPlays();
+    all[key] = (all[key] || 0) + 1;
+    try { localStorage.setItem(PLAYS_KEY, JSON.stringify(all)); } catch {}
+    return all[key];
+  }
+
   // ---- Elements ----------------------------------------------
   const nameInput = document.getElementById("inp-name");
   const emailInput = document.getElementById("inp-email");
@@ -131,6 +148,14 @@
   async function onGameEnd(result) {
     lastResult = result;
 
+    // A completed game counts as one play for this player.
+    const myPlays = bumpPlays(player.email);
+    const attemptEl = document.getElementById("res-attempt");
+    if (attemptEl) {
+      attemptEl.textContent =
+        "Attempt #" + myPlays + (myPlays === 1 ? " — welcome!" : "");
+    }
+
     // Fill results screen.
     document.getElementById("res-points").textContent = result.points;
     document.getElementById("res-accuracy").textContent =
@@ -192,6 +217,7 @@
     try {
       const rows = await LB.store.fetchAll();
       const board = LB.buildLeaderboard(rows);
+      const plays = LB.playCounts(rows);
 
       if (!board.length) {
         status.textContent = "No qualifying scores yet. Be the first!";
@@ -208,12 +234,15 @@
         if ((r.email || "").trim().toLowerCase() === myKey) {
           tr.className = "me";
         }
+        const key = (r.email || "").trim().toLowerCase();
+        const nPlays = plays.get(key) || 1;
         tr.innerHTML =
           "<td>#" + r.rank + "</td>" +
           "<td>" + escapeHtml(r.player_name) + "</td>" +
           "<td>" + r.points + "</td>" +
           "<td>" + Math.round(r.accuracy * 100) + "%</td>" +
-          "<td>" + (r.avg_reaction_ms ? r.avg_reaction_ms.toFixed(1) + " ms" : "—") + "</td>";
+          "<td>" + (r.avg_reaction_ms ? r.avg_reaction_ms.toFixed(1) + " ms" : "—") + "</td>" +
+          "<td>" + nPlays + "</td>";
         body.appendChild(tr);
       }
     } catch (e) {
