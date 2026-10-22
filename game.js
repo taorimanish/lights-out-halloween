@@ -34,16 +34,20 @@
   const TYPES = {
     yellow:  { points: 100,  symbol: "☀",  cls: "bulb-yellow",  scoring: true,  label: "Yellow bulb" },
     pumpkin: { points: 250,  symbol: "🎃", cls: "bulb-pumpkin", scoring: true,  label: "Pumpkin bulb" },
-    red:     { points: -200, symbol: "💀", cls: "bulb-red",     scoring: false, label: "Haunted bulb" },
+    red:     { points: -100, symbol: "💀", cls: "bulb-red",     scoring: false, label: "Haunted bulb" },
   };
 
   // Phase config: [startSec, endSec, visibleMs, maxActive, weights]
   // weights decide the chance of each spawned bulb's type.
+  // Easier tuning: longer visible times, fewer simultaneous targets,
+  // and fewer red decoys than the original challenge settings.
   const PHASES = [
-    { start: 0,  end: 10, visibleMs: 1000, maxActive: 2, w: { yellow: 0.60, pumpkin: 0.25, red: 0.15 } },
-    { start: 10, end: 25, visibleMs: 700,  maxActive: 3, w: { yellow: 0.55, pumpkin: 0.25, red: 0.20 } },
-    { start: 25, end: 35, visibleMs: 450,  maxActive: 4, w: { yellow: 0.50, pumpkin: 0.22, red: 0.28 } },
-    { start: 35, end: 45, visibleMs: 300,  maxActive: 5, w: { yellow: 0.42, pumpkin: 0.18, red: 0.40 } },
+    { start: 0,  end: 10, visibleMs: 1300, maxActive: 2, w: { yellow: 0.65, pumpkin: 0.27, red: 0.08 } },
+    { start: 10, end: 25, visibleMs: 950,  maxActive: 3, w: { yellow: 0.62, pumpkin: 0.26, red: 0.12 } },
+    { start: 25, end: 35, visibleMs: 800,  maxActive: 3, w: { yellow: 0.58, pumpkin: 0.24, red: 0.18 } },
+    // Final stretch kept noticeably calmer per feedback: longer visible
+    // time and fewer simultaneous targets so the ending isn't too fast.
+    { start: 35, end: 45, visibleMs: 650,  maxActive: 3, w: { yellow: 0.56, pumpkin: 0.22, red: 0.22 } },
   ];
 
   function phaseForElapsed(sec) {
@@ -141,7 +145,8 @@
       const phase = phaseForElapsed(sec);
 
       // Spawn gap scales with phase: busier phases spawn faster.
-      this._spawnGap = phase.visibleMs * 0.55;
+      // Eased: larger factor -> slightly slower, calmer spawn pace.
+      this._spawnGap = phase.visibleMs * 0.7;
 
       if (elapsedMs - this._lastSpawn >= this._spawnGap) {
         this._lastSpawn = elapsedMs;
@@ -175,8 +180,9 @@
       const empty = this._emptyCells();
       if (!empty.length) return;
 
-      // Sometimes spawn two at once to create overlapping targets.
-      const burst = Math.random() < 0.35 && empty.length > 1 &&
+      // Occasionally spawn two at once to create overlapping targets.
+      // Eased: lower burst chance so overlaps are less frequent.
+      const burst = Math.random() < 0.2 && empty.length > 1 &&
         this.active.size + 2 <= phase.maxActive ? 2 : 1;
 
       for (let n = 0; n < burst; n++) {
@@ -239,11 +245,11 @@
       const inFinal10 = this._elapsedSec() >= (this.duration / 1000 - 10);
 
       if (!bulb) {
-        // Clicked an unlit socket.
-        this.points -= 25;
+        // Clicked an unlit socket. (Eased penalty.)
+        this.points -= 10;
         this.streak = 0;
         this._flash(cell, "miss");
-        this._float(cell, "-25");
+        this._float(cell, "-10");
         this._updateHud();
         return;
       }
@@ -259,7 +265,7 @@
       if (!t.scoring) {
         // Red haunted decoy clicked -> penalty, resets streak.
         bulb.scored = true;
-        this.points += t.points; // -200
+        this.points += t.points; // -100 (eased)
         this.streak = 0;
         this._flash(cell, "bad");
         this._float(cell, String(t.points));
@@ -277,9 +283,11 @@
       if (inFinal10) this.final10Hits++;
 
       // Speed bonus 0..99 by % of visible time remaining.
+      // Eased: a square-root curve rewards even not-lightning-fast hits
+      // (e.g. 50% time left -> ~70 bonus instead of ~50), still 0..99.
       const remaining = Math.max(0, bulb.expiresAt - performance.now());
       const pct = remaining / bulb.visibleMs; // 0..1
-      const speedBonus = Math.max(0, Math.min(99, Math.round(pct * 99)));
+      const speedBonus = Math.max(0, Math.min(99, Math.round(Math.sqrt(pct) * 99)));
 
       let gained = t.points + speedBonus;
 

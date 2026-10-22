@@ -19,8 +19,8 @@ No server to run, no login, no passwords.
 |---|---|---|
 | Yellow bulb | ☀ | +100 |
 | Pumpkin bulb | 🎃 | +250 |
-| Haunted bulb (decoy) | 💀 | −200 |
-| Empty socket (clicked) | · | −25 |
+| Haunted bulb (decoy) | 💀 | −100 |
+| Empty socket (clicked) | · | −10 |
 
 - **Speed bonus** 0–99 per correct hit, based on % of the bulb's visible time remaining.
 - **+50** every 5 consecutive correct hits. Wrong clicks or missed scoring bulbs reset the streak.
@@ -29,10 +29,13 @@ No server to run, no login, no passwords.
 ### Difficulty ramp
 | Time | Visible | Max active |
 |---|---|---|
-| 0–10s | ~1000 ms | 2 |
-| 10–25s | ~700 ms | 3 |
-| 25–35s | ~450 ms | 4 |
-| 35–45s | ~300 ms | 5 (more red decoys) |
+| 0–10s | ~1300 ms | 2 |
+| 10–25s | ~950 ms | 3 |
+| 25–35s | ~800 ms | 3 |
+| 35–45s | ~650 ms | 3 (more red decoys) |
+
+> Tuned for an **easier, more forgiving** experience: longer visible times, fewer
+> simultaneous targets, fewer red decoys, softer penalties, and a gentler speed-bonus curve.
 
 ### Unique leaderboard ordering (no shared ranks)
 Performances are ranked strictly by, in order:
