@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b0612" />
+  <title>Lights Out! — Barron's Halloween Challenge</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+</head>
+<body>
+  <div class="cobweb cobweb-tl" aria-hidden="true"></div>
+  <div class="cobweb cobweb-tr" aria-hidden="true"></div>
+
+  <div id="mode-badge" class="mode-badge off">Local mode</div>
+
+  <main class="stage">
+
+    <!-- ============ WELCOME ============ -->
+    <section id="screen-welcome" class="screen active">
+      <div class="panel">
+        <h1 class="title">LIGHTS&nbsp;OUT!</h1>
+        <p class="subtitle">Barron's Halloween Challenge 🎃</p>
+        <p id="welcome-greet" class="greet"></p>
+
+        <div class="field">
+          <label for="inp-name">Your name</label>
+          <input id="inp-name" type="text" autocomplete="name" placeholder="e.g. Morticia A." maxlength="80" />
+        </div>
+        <div class="field">
+          <label for="inp-email">Barron email</label>
+          <input id="inp-email" type="email" autocomplete="email" placeholder="you@barronltg.com" />
+          <p id="qualify-note" class="note"></p>
+        </div>
+        <p id="form-error" class="error"></p>
+
+        <div class="btn-row">
+          <button id="btn-play" class="btn btn-primary">Enter the Control Room ⚡</button>
+          <button id="btn-how" class="btn btn-ghost">How to play</button>
+        </div>
+        <button id="btn-welcome-lb" class="btn btn-link">View leaderboard →</button>
+      </div>
+    </section>
+
+    <!-- ============ INSTRUCTIONS ============ -->
+    <section id="screen-instructions" class="screen">
+      <div class="panel">
+        <h2 class="title-sm">How to Play</h2>
+        <p class="lede">You have <strong>45 seconds</strong>. Tap the glowing bulbs before they burn out. It gets faster — and more haunted — as time runs down.</p>
+
+        <ul class="legend">
+          <li><span class="chip chip-yellow">☀</span> Yellow bulb — <strong>+100</strong></li>
+          <li><span class="chip chip-pumpkin">🎃</span> Pumpkin bulb — <strong>+250</strong></li>
+          <li><span class="chip chip-red">💀</span> Haunted bulb — <strong>−200</strong> (don't touch!)</li>
+          <li><span class="chip chip-dark">·</span> Empty socket — <strong>−25</strong> if you tap it</li>
+        </ul>
+
+        <ul class="rules">
+          <li>⚡ <strong>Speed bonus</strong> up to +99 — the faster you hit, the more you earn.</li>
+          <li>🔥 <strong>5-in-a-row</strong> correct hits = +50 bonus. Misses and wrong taps reset your streak.</li>
+          <li>👻 Each bulb scores only once. Overlapping targets appear in later rounds.</li>
+        </ul>
+
+        <div class="btn-row">
+          <button id="btn-start" class="btn btn-primary">I'm ready — Start! 🕯️</button>
+          <button id="btn-back-welcome" class="btn btn-ghost">Back</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GAME ============ -->
+    <section id="screen-game" class="screen">
+      <div class="hud">
+        <div class="hud-item"><span class="hud-label">Score</span><span id="hud-score" class="hud-val">0</span></div>
+        <div class="hud-item"><span class="hud-label">Time</span><span id="hud-time" class="hud-val">45</span></div>
+        <div class="hud-item"><span class="hud-label">Streak</span><span id="hud-streak" class="hud-val">0</span></div>
+        <div class="hud-item"><span class="hud-label">Accuracy</span><span id="hud-accuracy" class="hud-val">0%</span></div>
+      </div>
+      <div class="grid-wrap">
+        <div id="grid" class="grid"></div>
+        <div id="countdown" class="countdown"></div>
+      </div>
+    </section>
+
+    <!-- ============ RESULTS ============ -->
+    <section id="screen-results" class="screen">
+      <div class="panel">
+        <h2 class="title-sm">Lights Out! ⚰️</h2>
+        <div class="result-grid">
+          <div class="result-card big"><span class="rc-label">Points</span><span id="res-points" class="rc-val">0</span></div>
+          <div class="result-card"><span class="rc-label">Accuracy</span><span id="res-accuracy" class="rc-val">0%</span></div>
+          <div class="result-card"><span class="rc-label">Avg reaction</span><span id="res-reaction" class="rc-val">—</span></div>
+          <div class="result-card"><span class="rc-label">Final-10s hits</span><span id="res-final10" class="rc-val">0</span></div>
+          <div class="result-card"><span class="rc-label">Hits</span><span id="res-hits" class="rc-val">0 / 0</span></div>
+        </div>
+        <p id="res-rank" class="rank-line"></p>
+
+        <div class="btn-row">
+          <button id="btn-play-again" class="btn btn-primary">Play Again 🔁</button>
+          <button id="btn-view-lb" class="btn btn-ghost">Leaderboard</button>
+        </div>
+        <button id="btn-change-player" class="btn btn-link">Not you? Change player</button>
+      </div>
+    </section>
+
+    <!-- ============ LEADERBOARD ============ -->
+    <section id="screen-leaderboard" class="screen">
+      <div class="panel wide">
+        <h2 class="title-sm">🏆 Leaderboard</h2>
+        <p id="lb-status" class="lb-status">Loading…</p>
+        <div class="table-wrap">
+          <table class="lb-table">
+            <thead>
+              <tr><th>Rank</th><th>Player</th><th>Points</th><th>Acc.</th><th>Avg RT</th></tr>
+            </thead>
+            <tbody id="lb-body"></tbody>
+          </table>
+        </div>
+        <div class="btn-row">
+          <button id="btn-lb-again" class="btn btn-primary">Play Again 🔁</button>
+          <button id="btn-lb-home" class="btn btn-ghost">Home</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Supabase JS (optional; game works without it in local mode) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="leaderboard.js"></script>
+  <script src="game.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
