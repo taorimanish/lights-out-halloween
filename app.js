@@ -38,6 +38,9 @@
   }
 
   let player = loadPlayer() || { name: "", email: "" };
+  // Normalize any remembered email (handles players saved before the
+  // case-normalization fix, e.g. an auto-capitalized phone entry).
+  if (player.email) player.email = String(player.email).trim().toLowerCase();
 
   // ---- Local plays counter (per email, this browser) ----------
   // Counts completed games so every player — even non-qualifying ones —
@@ -182,7 +185,7 @@
 
     const record = {
       player_name: player.name,
-      email: player.email,
+      email: (player.email || "").trim().toLowerCase(),
       points: result.points,
       correct_clicks: result.correctClicks,
       total_clicks: result.totalClicks,
@@ -280,9 +283,13 @@
   document.getElementById("btn-play").addEventListener("click", () => {
     formError.textContent = "";
     const name = nameInput.value.trim();
-    const email = emailInput.value.trim();
+    // Normalize email: trim + lowercase. Mobile keyboards auto-capitalize,
+    // which previously passed the client check but was REJECTED by the
+    // case-sensitive DB policy — causing silent score loss.
+    const email = emailInput.value.trim().toLowerCase();
     if (!name) { formError.textContent = "Please enter your name."; return; }
     if (!validEmail(email)) { formError.textContent = "Please enter a valid email."; return; }
+    emailInput.value = email;           // reflect the normalized value back
     player = { name, email };
     savePlayer(player);
     show("instructions");

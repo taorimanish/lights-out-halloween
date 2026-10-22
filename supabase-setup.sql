@@ -47,7 +47,9 @@ create policy "public insert barron scores"
   for insert
   to anon, authenticated
   with check (
-    email like '%@barronltg.com'
+    -- Case-insensitive + whitespace-tolerant so mobile auto-capitalized
+    -- emails (e.g. "@Barronltg.com") are still accepted.
+    lower(btrim(email)) like '%@barronltg.com'
     and char_length(player_name) between 1 and 80
     and total_clicks >= 0
     and correct_clicks >= 0
