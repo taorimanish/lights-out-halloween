@@ -208,26 +208,33 @@
   }
 
   // ---- Render leaderboard ------------------------------------
-  async function renderLeaderboard() {
+  // Fetch + render the leaderboard. Pass silent=true for background
+  // auto-refreshes so the table doesn't flash a "Loading…" state.
+  async function renderLeaderboard(silent) {
     const body = document.getElementById("lb-body");
     const status = document.getElementById("lb-status");
-    body.innerHTML = "";
-    status.textContent = "Loading…";
+    if (!silent) { body.innerHTML = ""; status.textContent = "Loading…"; }
 
     try {
       const rows = await LB.store.fetchAll();
       const board = LB.buildLeaderboard(rows);
 
       if (!board.length) {
+        body.innerHTML = "";
         status.textContent = "No qualifying scores yet. Be the first!";
         return;
       }
-      status.textContent = LB.store.usingSupabase
+
+      const stamp = new Date().toLocaleTimeString();
+      status.textContent = (LB.store.usingSupabase
         ? "Shared leaderboard — " + board.length + " players"
-        : "Local leaderboard (this browser) — add Supabase keys for shared play";
+        : "Local leaderboard (this browser) — add Supabase keys for shared play")
+        + " · updated " + stamp;
 
       const myKey = (player.email || "").trim().toLowerCase();
 
+      // Rebuild rows (cheap for a small board) so silent refreshes update in place.
+      body.innerHTML = "";
       for (const r of board) {
         const tr = document.createElement("tr");
         if ((r.email || "").trim().toLowerCase() === myKey) {
@@ -243,8 +250,24 @@
       }
     } catch (e) {
       console.error(e);
-      status.textContent = "Couldn't load the leaderboard.";
+      if (!silent) status.textContent = "Couldn't load the leaderboard.";
     }
+  }
+
+  // ---- Auto-refresh while the leaderboard screen is open ------
+  let lbPollTimer = null;
+  function startLeaderboardAutoRefresh() {
+    stopLeaderboardAutoRefresh();
+    renderLeaderboard(false);                 // immediate full load
+    lbPollTimer = setInterval(() => {
+      // Only poll while the leaderboard screen is actually visible.
+      if (screens.leaderboard.classList.contains("active")) {
+        renderLeaderboard(true);              // silent background refresh
+      }
+    }, 10000);                                // every 10 seconds
+  }
+  function stopLeaderboardAutoRefresh() {
+    if (lbPollTimer) { clearInterval(lbPollTimer); lbPollTimer = null; }
   }
 
   function escapeHtml(s) {
@@ -283,13 +306,20 @@
   });
   document.getElementById("btn-view-lb").addEventListener("click", () => {
     show("leaderboard");
-    renderLeaderboard();
+    startLeaderboardAutoRefresh();
   });
-  document.getElementById("btn-lb-again").addEventListener("click", startGameFlow);
-  document.getElementById("btn-lb-home").addEventListener("click", () => show("welcome"));
+  document.getElementById("btn-lb-again").addEventListener("click", () => {
+    stopLeaderboardAutoRefresh();
+    startGameFlow();
+  });
+  document.getElementById("btn-lb-refresh").addEventListener("click", () => renderLeaderboard(false));
+  document.getElementById("btn-lb-home").addEventListener("click", () => {
+    stopLeaderboardAutoRefresh();
+    show("welcome");
+  });
   document.getElementById("btn-welcome-lb").addEventListener("click", () => {
     show("leaderboard");
-    renderLeaderboard();
+    startLeaderboardAutoRefresh();
   });
 
   document.getElementById("btn-change-player").addEventListener("click", () => {
