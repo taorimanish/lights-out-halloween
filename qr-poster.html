@@ -22,7 +22,15 @@
       --purple: #6a2c9e;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      /* Force browsers to PRINT background colors/images (yellow body,
+         denim overalls, QR card, pills). Without this, print defaults
+         to dropping backgrounds to save ink and everything goes white. */
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
     html, body { margin: 0; }
     body {
       font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
@@ -146,9 +154,24 @@
 
     /* ---- Print: hide controls, one clean page ---- */
     @media print {
-      body { background: #fff; padding: 0; }
+      html, body {
+        background: #fff; padding: 0;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
       .controls, .hint { display: none !important; }
-      .poster { box-shadow: none; border-radius: 0; width: 100%; min-height: 100vh; }
+      .poster {
+        box-shadow: none; border-radius: 0; width: 100%; min-height: 100vh;
+        /* Solid-yellow fallback first, gradient on top for capable printers. */
+        background-color: var(--minion-yellow) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      /* Reassert fills on the key colored pieces for stubborn drivers. */
+      .body { background: var(--minion-yellow) !important; }
+      .overalls, .pocket { background: var(--denim) !important; }
+      .goggle { background: var(--steel) !important; }
+      .foot, .strap, .kicker, .pill { background: var(--ink) !important; }
       @page { size: A4 portrait; margin: 10mm; }
     }
   </style>
