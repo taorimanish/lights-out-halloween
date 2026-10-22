@@ -4,7 +4,7 @@
   "description": "Lights Out! — Barron's Halloween Challenge. A static reaction game with a hosted Supabase leaderboard.",
   "private": true,
   "scripts": {
-    "start": "npx --yes serve public",
-    "dev": "npx --yes serve public"
+    "start": "npx --yes serve .",
+    "dev": "npx --yes serve ."
   }
 }

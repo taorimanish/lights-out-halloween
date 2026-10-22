@@ -59,7 +59,7 @@ Because the last key is a unique id, every performance gets a **distinct** rank.
 
 ### 2. Add your keys
 In **Dashboard → Settings → API**, copy your **Project URL** and **anon public key**, then paste them into
-[`public/config.js`](./public/config.js):
+[`config.js`](./config.js):
 
 ```js
 SUPABASE_URL:      "https://YOUR-PROJECT.supabase.co",
@@ -70,20 +70,20 @@ SUPABASE_ANON_KEY: "YOUR-ANON-PUBLIC-KEY",
 > If you leave these blank, the game still runs in **local mode** (leaderboard stored only in that one browser) — handy for testing.
 
 ### 3. Run it
-It's just static files in `public/`. Any of these works:
+It's just static files at the repo root. Any of these works:
 
 ```bash
 # Option A: quick local preview
-npm start            # serves ./public at http://localhost:3000
+npm start            # serves the site at http://localhost:3000
 
 # Option B: open directly
-# open public/index.html in a browser (local mode is fine without keys)
+# open index.html in a browser (local mode is fine without keys)
 ```
 
 ### 4. Deploy (pick one)
-Host the `public/` folder on any static host:
-- **Netlify / Vercel / Cloudflare Pages:** drag-and-drop the `public` folder or connect the repo (publish directory = `public`).
-- **GitHub Pages:** push and serve the `public` folder.
+Host the site files on any static host:
+- **GitHub Pages:** Settings → Pages → Deploy from a branch → `main` / `/ (root)`.
+- **Netlify / Vercel / Cloudflare Pages:** connect the repo (publish directory = root).
 
 Share the URL with the office. Done. 🎉
 
@@ -97,13 +97,12 @@ Share the URL with the office. Done. 🎉
 ## File map
 ```
 lights-out/
-├── public/
-│   ├── index.html       # all 5 screens
-│   ├── styles.css       # haunted control-panel theme
-│   ├── config.js        # YOUR Supabase URL + anon key + domain
-│   ├── leaderboard.js   # ranking rules + Supabase/local store
-│   ├── game.js          # game engine (spawn, scoring, difficulty, timing)
-│   └── app.js           # screen flow, player memory, submit + render
+├── index.html           # all 5 screens
+├── styles.css           # haunted control-panel theme
+├── config.js            # YOUR Supabase URL + anon key + domain
+├── leaderboard.js       # ranking rules + Supabase/local store
+├── game.js              # game engine (spawn, scoring, difficulty, timing)
+├── app.js               # screen flow, player memory, submit + render
 ├── supabase-setup.sql   # run once in Supabase
 ├── package.json
 └── README.md
