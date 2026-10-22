@@ -217,7 +217,6 @@
     try {
       const rows = await LB.store.fetchAll();
       const board = LB.buildLeaderboard(rows);
-      const plays = LB.playCounts(rows);
 
       if (!board.length) {
         status.textContent = "No qualifying scores yet. Be the first!";
@@ -234,15 +233,12 @@
         if ((r.email || "").trim().toLowerCase() === myKey) {
           tr.className = "me";
         }
-        const key = (r.email || "").trim().toLowerCase();
-        const nPlays = plays.get(key) || 1;
         tr.innerHTML =
           "<td>#" + r.rank + "</td>" +
           "<td>" + escapeHtml(r.player_name) + "</td>" +
           "<td>" + r.points + "</td>" +
           "<td>" + Math.round(r.accuracy * 100) + "%</td>" +
-          "<td>" + (r.avg_reaction_ms ? r.avg_reaction_ms.toFixed(1) + " ms" : "—") + "</td>" +
-          "<td>" + nPlays + "</td>";
+          "<td>" + (r.avg_reaction_ms ? r.avg_reaction_ms.toFixed(1) + " ms" : "—") + "</td>";
         body.appendChild(tr);
       }
     } catch (e) {

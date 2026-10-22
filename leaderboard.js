@@ -81,19 +81,6 @@
     return best.map((row, i) => Object.assign({}, row, { rank: i + 1 }));
   }
 
-  // Count how many times each qualifying email has played
-  // (one submitted row = one completed play). Returns a Map keyed by
-  // lowercased email -> integer count.
-  function playCounts(rows) {
-    const counts = new Map();
-    for (const r of rows) {
-      if (!isQualifying(r.email)) continue;
-      const key = (r.email || "").trim().toLowerCase();
-      counts.set(key, (counts.get(key) || 0) + 1);
-    }
-    return counts;
-  }
-
   // Find a specific email's unique rank within the full leaderboard.
   function findRank(leaderboard, email) {
     const key = (email || "").trim().toLowerCase();
@@ -177,7 +164,6 @@
     isQualifying,
     bestPerEmail,
     buildLeaderboard,
-    playCounts,
     findRank,
     store,
     cryptoRandomId,
