@@ -44,11 +44,11 @@
   const PHASES = [
     { start: 0,  end: 10, visibleMs: 1300, maxActive: 2, w: { yellow: 0.65, pumpkin: 0.27, red: 0.08 } },
     { start: 10, end: 25, visibleMs: 950,  maxActive: 3, w: { yellow: 0.62, pumpkin: 0.26, red: 0.12 } },
-    // Last 20 seconds slowed further per feedback: the 25-35s and
-    // 35-45s phases now stay visible noticeably longer so the back
-    // half of the game doesn't feel rushed.
+    // 25-35s stays calm (this was the part that felt too fast earlier).
     { start: 25, end: 35, visibleMs: 950,  maxActive: 3, w: { yellow: 0.58, pumpkin: 0.24, red: 0.18 } },
-    { start: 35, end: 45, visibleMs: 850,  maxActive: 3, w: { yellow: 0.56, pumpkin: 0.22, red: 0.22 } },
+    // Final 10 seconds picks the pace back up for a satisfying finish:
+    // shorter visible time and one more possible target + more red decoys.
+    { start: 35, end: 45, visibleMs: 600,  maxActive: 4, w: { yellow: 0.54, pumpkin: 0.20, red: 0.26 } },
   ];
 
   function phaseForElapsed(sec) {

@@ -32,7 +32,7 @@ No server to run, no login, no passwords.
 | 0–10s | ~1300 ms | 2 |
 | 10–25s | ~950 ms | 3 |
 | 25–35s | ~950 ms | 3 |
-| 35–45s | ~850 ms | 3 (more red decoys) |
+| 35–45s | ~600 ms | 4 (more red decoys) |
 
 > Tuned for an **easier, more forgiving** experience: longer visible times, fewer
 > simultaneous targets, fewer red decoys, softer penalties, and a gentler speed-bonus curve.
