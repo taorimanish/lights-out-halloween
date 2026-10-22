@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lights Out! — Printable QR Poster (Minion theme)</title>
+  <style>
+    /* =========================================================
+       Minion-INSPIRED printable poster (original art — no
+       trademarked characters/logos). Signature yellow body,
+       denim overalls, a single goggle, and black bands.
+       ========================================================= */
+    :root {
+      --minion-yellow: #ffd60a;
+      --minion-yellow-2: #ffc300;
+      --denim: #2f6fb0;
+      --denim-dark: #255a90;
+      --steel: #c9d1d9;
+      --steel-dark: #8b97a3;
+      --ink: #141414;
+      --pumpkin: #ff7518;
+      --purple: #6a2c9e;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+      background: #e9eef3;
+      color: var(--ink);
+      padding: 24px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    /* ---- Screen-only controls ---- */
+    .controls {
+      width: 100%; max-width: 780px; background: #fff; border-radius: 14px;
+      padding: 16px 18px; margin-bottom: 22px; box-shadow: 0 6px 24px rgba(0,0,0,.1);
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: end;
+    }
+    .controls .fld { flex: 1 1 260px; }
+    .controls label { display: block; font-size: 12px; font-weight: 700; color: #555; margin-bottom: 4px; }
+    .controls input {
+      width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #ccd3da;
+      border-radius: 9px; outline: none;
+    }
+    .controls input:focus { border-color: var(--denim); }
+    .controls button {
+      padding: 11px 18px; font-size: 14px; font-weight: 800; border: none; cursor: pointer;
+      border-radius: 10px; background: var(--denim); color: #fff;
+    }
+    .controls button.print { background: var(--pumpkin); }
+    .hint { width: 100%; max-width: 780px; font-size: 12.5px; color: #667; margin: -10px 0 20px; }
+
+    /* ---- The poster (A4-ish portrait, prints to one page) ---- */
+    .poster {
+      position: relative; width: 780px; min-height: 1040px;
+      background:
+        radial-gradient(1200px 500px at 50% -10%, #ffe66b 0%, transparent 55%),
+        linear-gradient(170deg, var(--minion-yellow) 0%, var(--minion-yellow-2) 62%, #f0b400 100%);
+      border-radius: 26px; overflow: hidden;
+      box-shadow: 0 16px 50px rgba(0,0,0,.22);
+      padding: 42px 46px 54px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    /* Halloween cobweb + bats accents */
+    .bat { position: absolute; font-size: 34px; opacity: .9; }
+    .bat.b1 { top: 22px; left: 28px; transform: rotate(-12deg); }
+    .bat.b2 { top: 40px; right: 34px; transform: rotate(10deg) scaleX(-1); }
+    .web {
+      position: absolute; top: 0; right: 0; width: 150px; height: 150px;
+      background: radial-gradient(circle at 100% 0, rgba(0,0,0,.18) 1px, transparent 2px) 0 0/20px 20px;
+      -webkit-mask: radial-gradient(circle at 100% 0, #000 70%, transparent 72%);
+              mask: radial-gradient(circle at 100% 0, #000 70%, transparent 72%);
+      opacity: .35;
+    }
+
+    .kicker {
+      background: var(--ink); color: var(--minion-yellow); font-weight: 900;
+      letter-spacing: .14em; font-size: 15px; padding: 7px 16px; border-radius: 999px;
+      text-transform: uppercase; margin-top: 6px;
+    }
+    .headline {
+      font-size: 62px; font-weight: 900; line-height: .98; text-align: center;
+      margin: 14px 0 2px; color: var(--ink);
+      text-shadow: 3px 3px 0 #fff, 6px 6px 0 rgba(0,0,0,.12);
+    }
+    .headline .lo { color: var(--denim-dark); }
+    .sub { font-size: 20px; font-weight: 800; color: #5a4600; margin: 2px 0 6px; text-align: center; }
+
+    /* ---- Minion-inspired figure ---- */
+    .minion { position: relative; width: 190px; height: 210px; margin: 10px 0 4px; }
+    .body {
+      position: absolute; inset: 0 0 34px 0; background: linear-gradient(180deg,#ffe24d,var(--minion-yellow));
+      border: 5px solid var(--ink); border-radius: 95px/110px;
+    }
+    /* goggle strap */
+    .strap { position: absolute; top: 72px; left: -5px; right: -5px; height: 16px; background: var(--ink); }
+    .goggle {
+      position: absolute; top: 48px; left: 50%; transform: translateX(-50%);
+      width: 92px; height: 92px; border-radius: 50%;
+      background: var(--steel); border: 7px solid var(--steel-dark);
+      display: grid; place-items: center; z-index: 2;
+    }
+    .eye { width: 50px; height: 50px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+    .pupil { width: 20px; height: 20px; border-radius: 50%; background: #5b3a1a; position: relative; }
+    .pupil::after { content:""; position:absolute; top:3px; left:4px; width:6px; height:6px; border-radius:50%; background:#fff; }
+    .mouth {
+      position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+      width: 58px; height: 26px; border: 4px solid var(--ink); border-top: none;
+      border-radius: 0 0 40px 40px; background: #fff; z-index: 2;
+    }
+    /* denim overalls */
+    .overalls {
+      position: absolute; bottom: 34px; left: 0; right: 0; height: 58px;
+      background: var(--denim); border: 5px solid var(--ink); border-top: none;
+      border-radius: 0 0 70px 70px;
+    }
+    .pocket { position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%); width: 46px; height: 30px; background: var(--denim-dark); border: 3px solid var(--ink); border-radius: 6px; z-index: 2; }
+    .pocket::after { content:"🎃"; position:absolute; inset:0; display:grid; place-items:center; font-size:16px; }
+    .feet { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); display:flex; gap:14px; }
+    .foot { width: 34px; height: 30px; background: var(--ink); border-radius: 10px 10px 16px 16px; }
+
+    /* ---- QR block ---- */
+    .qr-card {
+      background: #fff; border: 6px solid var(--ink); border-radius: 22px;
+      padding: 20px; margin-top: 16px; box-shadow: 8px 8px 0 rgba(0,0,0,.15);
+      display: flex; flex-direction: column; align-items: center;
+    }
+    #qr { width: 300px; height: 300px; display: grid; place-items: center; }
+    #qr canvas, #qr img { width: 300px !important; height: 300px !important; image-rendering: pixelated; }
+    .scan {
+      margin-top: 12px; font-weight: 900; font-size: 20px; letter-spacing: .04em;
+      color: var(--ink); display: flex; align-items: center; gap: 8px;
+    }
+    .url-text { font-size: 13px; color: #555; word-break: break-all; text-align: center; margin-top: 4px; max-width: 320px; }
+
+    .footer {
+      margin-top: auto; padding-top: 18px; text-align: center; font-weight: 800; color: #5a4600; font-size: 16px;
+    }
+    .footer .rules { font-weight: 700; color: var(--ink); font-size: 14px; margin-top: 6px; }
+    .pill {
+      display: inline-block; background: var(--ink); color: var(--minion-yellow);
+      padding: 4px 12px; border-radius: 999px; font-size: 13px; margin: 3px;
+    }
+
+    /* ---- Print: hide controls, one clean page ---- */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .controls, .hint { display: none !important; }
+      .poster { box-shadow: none; border-radius: 0; width: 100%; min-height: 100vh; }
+      @page { size: A4 portrait; margin: 10mm; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen-only controls -->
+  <div class="controls no-print">
+    <div class="fld">
+      <label for="url">Game URL (what the QR points to)</label>
+      <input id="url" type="url" value="https://taorimanish.github.io/lights-out-halloween/" />
+    </div>
+    <button id="make">Update QR</button>
+    <button id="print" class="print">🖨️ Print poster</button>
+  </div>
+  <p class="hint">Tip: set the URL to your live GitHub Pages link, click <b>Update QR</b>, then <b>Print</b> (or “Save as PDF”). The poster is sized to fit one A4 page.</p>
+
+  <!-- The printable poster -->
+  <div class="poster" id="poster">
+    <span class="bat b1">🦇</span>
+    <span class="bat b2">🦇</span>
+    <span class="web"></span>
+
+    <span class="kicker">Barron Lighting · Halloween</span>
+    <h1 class="headline"><span class="lo">LIGHTS</span> OUT!</h1>
+    <p class="sub">🎃 A 45-second reaction challenge 🎃</p>
+
+    <!-- Minion-inspired mascot (original art) -->
+    <div class="minion" aria-label="Friendly yellow goggle mascot">
+      <div class="body"></div>
+      <div class="strap"></div>
+      <div class="goggle"><div class="eye"><div class="pupil"></div></div></div>
+      <div class="mouth"></div>
+      <div class="overalls"></div>
+      <div class="pocket"></div>
+      <div class="feet"><div class="foot"></div><div class="foot"></div></div>
+    </div>
+
+    <div class="qr-card">
+      <div id="qr"></div>
+      <div class="scan">📱 SCAN TO PLAY</div>
+      <div class="url-text" id="url-text"></div>
+    </div>
+
+    <div class="footer">
+      Tap the glowing bulbs before they burn out — beat your coworkers!
+      <div class="rules">
+        <span class="pill">☀ Yellow +100</span>
+        <span class="pill">🎃 Pumpkin +250</span>
+        <span class="pill">💀 Haunted −100</span>
+      </div>
+      <div class="rules">Top the leaderboard to win Lumens 💡</div>
+    </div>
+  </div>
+
+  <!-- QR library (MIT, zero-dep). Falls back to built-in renderer if blocked. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="qr-fallback.js"></script>
+  <script>
+    (function () {
+      var qrEl = document.getElementById("qr");
+      var urlInput = document.getElementById("url");
+      var urlText = document.getElementById("url-text");
+
+      function render(url) {
+        qrEl.innerHTML = "";
+        urlText.textContent = url;
+        if (window.QRCode) {
+          // Use the CDN library (crisp, high error-correction for print).
+          new QRCode(qrEl, {
+            text: url,
+            width: 300, height: 300,
+            correctLevel: QRCode.CorrectLevel.H,
+            colorDark: "#141414", colorLight: "#ffffff",
+          });
+        } else if (window.LO_QR_FALLBACK) {
+          // Offline fallback: draw QR to a canvas ourselves.
+          window.LO_QR_FALLBACK(qrEl, url, 300);
+        } else {
+          qrEl.textContent = "QR library failed to load — check your connection.";
+        }
+      }
+
+      document.getElementById("make").addEventListener("click", function () {
+        render(urlInput.value.trim());
+      });
+      document.getElementById("print").addEventListener("click", function () {
+        window.print();
+      });
+
+      render(urlInput.value.trim());
+    })();
+  </script>
+</body>
+</html>
