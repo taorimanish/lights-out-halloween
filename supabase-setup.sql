@@ -38,9 +38,15 @@ create policy "public read scores"
   to anon, authenticated
   using (true);
 
--- Anyone (anon) may INSERT a new score, but only for the
--- Barron domain and only sane, bounded values. This is a light
--- guard, not a full anti-cheat system (we award Lumens manually).
+-- Anyone (anon) may INSERT a new score, but only for the Barron domain
+-- and only PLAUSIBLE, bounded values. This is a plausibility guard that
+-- rejects fabricated submissions (e.g. a hand-crafted 1,000,000-point row).
+-- It is not a cryptographic anti-cheat system — Lumens are awarded manually,
+-- so blatant outliers can also just be disqualified by a human.
+--
+-- Bounds are derived from real play data (415 legitimate rows): the best
+-- genuine score was ~19,139 pts, max 77 correct hits, max 25 final-10 hits.
+-- The limits below sit well above real play but far below fabricated values.
 drop policy if exists "public insert barron scores" on public.scores;
 create policy "public insert barron scores"
   on public.scores
@@ -50,14 +56,46 @@ create policy "public insert barron scores"
     -- Case-insensitive + whitespace-tolerant so mobile auto-capitalized
     -- emails (e.g. "@Barronltg.com") are still accepted.
     lower(btrim(email)) like '%@barronltg.com'
-    and char_length(player_name) between 1 and 80
-    and total_clicks >= 0
+    and char_length(btrim(player_name)) between 1 and 60
+
+    -- Click/accuracy sanity.
+    and total_clicks between 0 and 400
     and correct_clicks >= 0
     and correct_clicks <= total_clicks
+    -- A 45s game cannot physically yield this many scoring hits (real max 77).
+    and correct_clicks <= 90
     and accuracy >= 0 and accuracy <= 1
-    and avg_reaction_ms >= 0 and avg_reaction_ms <= 60000
+    -- accuracy must actually equal correct/total (within rounding),
+    -- blocking mismatched hand-typed values. (total=0 => accuracy 0.)
+    and (
+      (total_clicks = 0 and accuracy = 0)
+      or abs(accuracy - (correct_clicks::float / nullif(total_clicks, 0))) <= 0.02
+    )
+
+    -- Reaction time: a real average is a positive, non-trivial number of ms.
+    -- Reject the impossibly-perfect tiny values used in fabricated rows,
+    -- unless there were simply no correct hits (then it's 0).
+    and avg_reaction_ms >= 0 and avg_reaction_ms <= 5000
+    and (correct_clicks = 0 or avg_reaction_ms >= 120)
+
+    -- Final-10 hits can't exceed total correct hits, and are bounded.
     and final10_hits >= 0
-    and points >= -100000 and points <= 1000000
+    and final10_hits <= correct_clicks
+    and final10_hits <= 40
+
+    -- Points: generous headroom over the real record (~19k) but far below
+    -- the million-point fakes.
+    and points >= -5000 and points <= 40000
+    -- Points can't exceed the theoretical max per correct hit
+    -- (250 pumpkin + 99 speed + 50 streak = 399), plus a small buffer.
+    and points <= correct_clicks * 399 + 50
+
+    -- Keep the submission time within a sane window of server time.
+    -- (A hand-crafted far-past/future timestamp is rejected; we don't
+    -- block round-millisecond values to avoid rare false positives on
+    -- genuine play — the other checks already catch fabricated rows.)
+    and submitted_at <= now() + interval '2 minutes'
+    and submitted_at >= now() - interval '1 day'
   );
 
 -- NOTE: No UPDATE or DELETE policies exist, so the browser (anon)
