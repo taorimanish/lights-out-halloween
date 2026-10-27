@@ -47,6 +47,39 @@ create policy "public read scores"
 -- Bounds are derived from real play data (415 legitimate rows): the best
 -- genuine score was ~19,139 pts, max 77 correct hits, max 25 final-10 hits.
 -- The limits below sit well above real play but far below fabricated values.
+-- ---- Banned emails ----------------------------------------
+-- A simple blocklist. To ban someone, insert their (lowercased) email;
+-- to un-ban, delete the row. The insert policy below rejects any score
+-- whose email is present here. Anon cannot read/modify this table.
+create table if not exists public.banned_emails (
+  email      text primary key,   -- store lowercased, no spaces
+  reason     text,
+  banned_at  timestamptz not null default now()
+);
+alter table public.banned_emails enable row level security;
+-- No policies for anon/authenticated => the browser cannot read, insert,
+-- update, or delete this table. Manage it from the dashboard / SQL editor.
+
+-- Ban the known cheater.
+insert into public.banned_emails (email, reason)
+values ('mahdi.ghaleb@barronltg.com', 'fabricated scores')
+on conflict (email) do nothing;
+
+-- Helper that checks the banlist with elevated rights, so the insert
+-- policy can consult it even though anon has NO read access to the table.
+-- SECURITY DEFINER runs as the function owner (bypassing RLS on banned_emails).
+create or replace function public.is_email_banned(addr text)
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.banned_emails b
+    where b.email = lower(btrim(addr))
+  );
+$$;
+
 drop policy if exists "public insert barron scores" on public.scores;
 create policy "public insert barron scores"
   on public.scores
@@ -56,6 +89,8 @@ create policy "public insert barron scores"
     -- Case-insensitive + whitespace-tolerant so mobile auto-capitalized
     -- emails (e.g. "@Barronltg.com") are still accepted.
     lower(btrim(email)) like '%@barronltg.com'
+    -- Reject banned emails outright (checked via SECURITY DEFINER helper).
+    and not public.is_email_banned(email)
     and char_length(btrim(player_name)) between 1 and 60
 
     -- Click/accuracy sanity.
